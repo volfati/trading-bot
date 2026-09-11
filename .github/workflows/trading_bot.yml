@@ -32,14 +32,11 @@ jobs:
         run: |
           python main.py
 
-      - name: Sincronizar repositorio
+      - name: Guardar y sincronizar estado en el repositorio
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git pull origin main --rebase || true
-
-      - name: Guardar estado actualizado en el repositorio
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "🤖 Actualizar estado de Supertrend del bot"
-          file_pattern: "supertrend_state.json"
+          git add supertrend_state.json
+          git diff --staged --quiet || git commit -m "🤖 Actualizar estado de Supertrend del bot"
+          git pull origin main --rebase
+          git push origin main
