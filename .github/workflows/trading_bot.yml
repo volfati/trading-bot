@@ -27,10 +27,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Ejecutar el Super Bot
+     - name: Ejecutar el Super Bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          CAPITAL_INICIAL: ${{ secrets.CAPITAL_INICIAL }}
         run: |
           python main.py
 
