@@ -37,7 +37,7 @@ RELATIVE_VOLUME_CONFIRMATION = 1.3e0 if False else 1.38
 CONFIRMATION_SCORE = 4
 ATR_LENGTH = 14
 ADX_LENGTH = 14
-ADX_THRESHOLD = 20.0  # Mínima fuerza de tendencia requerida
+ADX_THRESHOLD = 20.0
 
 DEFAULT_STATE_FILE = "supertrend_state.json"
 TELEGRAM_API_TIMEOUT_SECONDS = 30
@@ -61,7 +61,7 @@ class MarketAnalysis:
     ema200: float
     atr: float
     adx: float
-    macro_trend: int  # 1 alcista, -1 bajista, 0 neutro
+    macro_trend: int
     score: int
     bias: str
     confirmed_signal: str | None
@@ -73,32 +73,17 @@ CRYPTO_ASSETS = [
     Asset("BTC-USD", "BTC-USD", "yfinance"),
     Asset("ETH-USD", "ETH-USD", "yfinance"),
     Asset("SOL-USD", "SOL-USD", "yfinance"),
-    Asset("ADA-USD", "ADA-USD", "yfinance"),
-    Asset("XRP-USD", "XRP-USD", "yfinance"),
-    Asset("AVAX-USD", "AVAX-USD", "yfinance"),
-    Asset("DOT-USD", "DOT-USD", "yfinance"),
-    Asset("LINK-USD", "LINK-USD", "yfinance"),
 ]
 
 ETF_AND_INDEX_ASSETS = [
     Asset("SPY", "SPY", "yfinance"),
     Asset("QQQ", "QQQ", "yfinance"),
-    Asset("DIA", "DIA", "yfinance"),
-    Asset("IWM", "IWM", "yfinance"),
-    Asset("GLD", "GLD", "yfinance"),
 ]
 
 US_STOCK_ASSETS = [
     Asset("AAPL", "AAPL", "yfinance"),
     Asset("TSLA", "TSLA", "yfinance"),
     Asset("NVDA", "NVDA", "yfinance"),
-    Asset("AMZN", "AMZN", "yfinance"),
-    Asset("MSFT", "MSFT", "yfinance"),
-    Asset("GOOGL", "GOOGL", "yfinance"),
-    Asset("META", "META", "yfinance"),
-    Asset("NFLX", "NFLX", "yfinance"),
-    Asset("MELI", "MELI", "yfinance"),
-    Asset("AMD", "AMD", "yfinance"),
 ]
 
 ALL_ASSETS = CRYPTO_ASSETS + ETF_AND_INDEX_ASSETS + US_STOCK_ASSETS
@@ -178,7 +163,6 @@ def _last_valid(series: pd.Series, label: str) -> float:
 
 
 def fetch_macro_trend(symbol: str) -> int:
-    """Verifica la tendencia rápida en gráfico diario (1d)."""
     try:
         df = yf.download(tickers=symbol, period="30d", interval=MACRO_TIMEFRAME, progress=False, threads=False)
         if df is None or df.empty:
@@ -215,25 +199,20 @@ def calculate_market_analysis(symbol: str, ohlcv: pd.DataFrame) -> MarketAnalysi
     ema50 = _last_valid(closed["close"].ewm(span=EMA_FAST_LENGTH, adjust=False).mean(), "EMA50")
     ema200 = _last_valid(closed["close"].ewm(span=EMA_SLOW_LENGTH, adjust=False).mean(), "EMA200")
     
-    # ATR para Stop Loss / Take Profit
     atr_series = ta.atr(closed["high"], closed["low"], closed["close"], length=ATR_LENGTH)
     atr = _last_valid(atr_series, "ATR")
 
-    # ADX para fuerza de tendencia
     adx_df = ta.adx(closed["high"], closed["low"], closed["close"], length=ADX_LENGTH)
     adx_cols = [c for c in adx_df.columns if c.startswith("ADX_")]
     adx = _last_valid(adx_df[adx_cols[0]], "ADX") if adx_cols else 25.0
 
-    # Volumen relativo
     pos_vol = closed[closed["volume"] > 0]["volume"]
     cur_vol = float(pos_vol.iloc[-1]) if not pos_vol.empty else 0.0
     avg_vol = float(pos_vol.iloc[-1 - RELATIVE_VOLUME_LENGTH:-1].mean()) if len(pos_vol) > RELATIVE_VOLUME_LENGTH else 1.0
     rel_vol = cur_vol / avg_vol if avg_vol > 0 else 0.0
 
-    # Tendencia macro (Diaria)
     macro = fetch_macro_trend(symbol)
 
-    # Confluencia y Puntaje
     trend_score = 2 if st_dir == 1 else -2
     rsi_score = 1 if rsi > 50 else -1
     vol_score = 1 if rel_vol >= RELATIVE_VOLUME_CONFIRMATION else 0
@@ -335,6 +314,14 @@ if __name__ == "__main__":
     state_path = Path(os.getenv("DEFAULT_STATE_FILE", DEFAULT_STATE_FILE))
 
     logger.info("Iniciando escaneo del Super Bot...")
+    
+    # Mensaje de prueba / verificación al iniciar
+    send_telegram_message(
+        token, 
+        chat_id, 
+        "🧪 *Mensaje de prueba*: ¡El Super Bot está conectado y operando con éxito en la nube!"
+    )
+
     state = load_state(state_path)
     
     for asset in ALL_ASSETS:
