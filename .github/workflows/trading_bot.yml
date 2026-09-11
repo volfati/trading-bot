@@ -25,12 +25,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Ejecutar el Bot
+      - name: Ejecutar el Super Bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python main.py
+
+      - name: Sincronizar repositorio
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull origin main --rebase || true
 
       - name: Guardar estado actualizado en el repositorio
         uses: stefanzweifel/git-auto-commit-action@v5
