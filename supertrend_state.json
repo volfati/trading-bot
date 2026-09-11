@@ -1,1 +1,25 @@
-{}
+{
+  "AAPL": 1,
+  "ADA-USD": 1,
+  "AMD": 1,
+  "AMZN": 1,
+  "AVAX-USD": 1,
+  "BTC-USD": -1,
+  "DIA": 1,
+  "DOT-USD": -1,
+  "ETH-USD": 1,
+  "GLD": -1,
+  "GOOGL": 1,
+  "IWM": -1,
+  "LINK-USD": 1,
+  "MELI": 1,
+  "META": 1,
+  "MSFT": -1,
+  "NFLX": 1,
+  "NVDA": -1,
+  "QQQ": 1,
+  "SOL-USD": 1,
+  "SPY": 1,
+  "TSLA": 1,
+  "XRP-USD": 1
+}
