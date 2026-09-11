@@ -41,6 +41,6 @@ jobs:
           git stash
           git pull origin main --rebase || true
           git stash pop || true
-          git add supertrend_state.json
-          git diff --staged --quiet || git commit -m "🤖 Actualizar estado de Supertrend del bot"
+          git add supertrend_state.json capital_actual.json || true
+          git diff --staged --quiet || git commit -m "🤖 Actualizar estado y capital del bot"
           git push origin main
