@@ -1,4 +1,5 @@
-pandas
 yfinance
-requests
+pandas
 pandas-ta
+requests
+ccxt
